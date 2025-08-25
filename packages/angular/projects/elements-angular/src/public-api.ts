@@ -3,3 +3,4 @@
  */
 
 export * from './lib/elements-angular';
+export * from './lib/components/branding';

@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./projects/unlayer-angular/src/test-setup.ts'],
+    setupFiles: ['./projects/elements-angular/src/test-setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

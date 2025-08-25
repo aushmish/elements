@@ -28,7 +28,7 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "projects/elements-angular/tsconfig.spec.json"
+            "tsConfig": "projects/elements-angular/tsconfig.spec.json",
             "runner": "vitest",
             "buildTarget": "elements-angular::development"
           }

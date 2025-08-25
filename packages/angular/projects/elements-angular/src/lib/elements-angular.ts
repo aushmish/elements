@@ -5,6 +5,10 @@
 // Basic exports - will be populated by automation
 export const version = '0.0.0';
 
+// Branding component
+export { BrandingComponent } from './components/branding';
+export type { BrandingVariant, BrandingSize, BrandingProps } from './components/branding';
+
 // Placeholder for future component exports
 // export { ButtonComponent } from './button/button.component';
 // export { RowComponent } from './row/row.component';
