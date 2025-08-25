@@ -1,0 +1,14 @@
+{
+  "name": "@unlayer/angular-elements",
+  "version": "0.0.1",
+  "description": "Angular components for building emails, pages, and documents with Unlayer Elements",
+  "peerDependencies": {
+    "@angular/common": "^20.1.0",
+    "@angular/core": "^20.1.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "unlayer-types": "^1.289.0"
+  },
+  "sideEffects": false
+}
