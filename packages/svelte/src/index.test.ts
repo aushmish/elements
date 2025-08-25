@@ -1,10 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { version } from './index';
 
-describe('@unlayer/svelte-elements', () => {
-  it('should export version as a string', () => {
-    expect(version).toBeDefined();
-    expect(typeof version).toBe('string');
+describe('Svelte Elements', () => {
+  it('exports version', () => {
     expect(version).toBe('0.0.0');
   });
 });
