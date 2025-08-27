@@ -19,7 +19,7 @@
         "./dist/unlayer"
       ],
       "unlayer-angular": [
-        "./dist/unlayer-angular"
+        "./dist/elements-angular"
       ]
     }
   },
@@ -33,16 +33,10 @@
   "files": [],
   "references": [
     {
-      "path": "./projects/unlayer/tsconfig.lib.json"
+      "path": "./projects/elements-angular/tsconfig.lib.json"
     },
     {
-      "path": "./projects/unlayer/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/unlayer-angular/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/unlayer-angular/tsconfig.spec.json"
+      "path": "./projects/elements-angular/tsconfig.spec.json"
     }
   ]
 }

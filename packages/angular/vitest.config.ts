@@ -17,5 +17,7 @@ export default defineConfig({
         '**/*.stories.*'
       ]
     },
+    include: ['**/*.spec.ts', '**/*.test.ts'],
+    exclude: ['node_modules/**', 'dist/**'],
   },
 });
