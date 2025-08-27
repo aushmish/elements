@@ -72,29 +72,3 @@ export const CustomStyling: Story = {
     style: 'color: #007bff; font-size: 18px; font-weight: bold;',
   },
 };
-
-export const AllVariants: Story = {
-  render: () => ({
-    components: { Branding },
-    template: `
-      <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
-        <Branding variant="default" />
-        <Branding variant="minimal" />
-        <Branding variant="full" />
-      </div>
-    `,
-  }),
-};
-
-export const AllSizes: Story = {
-  render: () => ({
-    components: { Branding },
-    template: `
-      <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
-        <Branding size="small" />
-        <Branding size="medium" />
-        <Branding size="large" />
-      </div>
-    `,
-  }),
-};

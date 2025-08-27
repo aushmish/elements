@@ -5,7 +5,7 @@
     "resolveJsonModule": true,
     "types": []
   },
-  "exclude": ["../projects/unlayer-angular/src/**/*.spec.ts"],
-  "include": ["../projects/unlayer-angular/src/**/*.stories.*", "./preview.ts"],
+  "exclude": ["../projects/elements-angular/src/**/*.spec.ts"],
+  "include": ["../projects/elements-angular/src/**/*.stories.*", "./preview.ts"],
   "files": ["./typings.d.ts"]
 }

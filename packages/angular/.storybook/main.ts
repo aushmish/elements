@@ -2,8 +2,8 @@ import type { StorybookConfig } from '@storybook/angular';
 
 const config: StorybookConfig = {
   "stories": [
-    "../projects/unlayer-angular/src/**/*.mdx",
-    "../projects/unlayer-angular/src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
+    "../projects/elements-angular/src/**/*.mdx",
+    "../projects/elements-angular/src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
   "addons": [
     "@storybook/addon-docs",

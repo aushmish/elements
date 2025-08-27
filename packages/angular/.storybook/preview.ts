@@ -1,6 +1,6 @@
 import type { Preview } from '@storybook/angular'
 import { setCompodocJson } from "@storybook/addon-docs/angular";
-import docJson from "../projects/unlayer-angular/documentation.json";
+import docJson from "../projects/elements-angular/documentation.json";
 setCompodocJson(docJson);
 
 const preview: Preview = {

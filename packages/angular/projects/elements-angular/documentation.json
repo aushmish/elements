@@ -14,21 +14,51 @@
                 "name": "Default",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                "file": "projects/elements-angular/src/branding.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  args: {},\n}"
             },
             {
+                "name": "Full",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/elements-angular/src/branding.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    variant: 'full',\n  },\n}"
+            },
+            {
+                "name": "Large",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/elements-angular/src/branding.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    size: 'large',\n  },\n}"
+            },
+            {
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                "file": "projects/elements-angular/src/branding.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Meta<UnlayerBuilder>",
-                "defaultValue": "{\n  title: 'Components/UnlayerBuilder',\n  component: UnlayerBuilder,\n  parameters: {\n    layout: 'fullscreen',\n  },\n  tags: ['autodocs'],\n}"
+                "type": "Meta<BrandingComponent>",
+                "defaultValue": "{\n  title: 'Components/Branding',\n  component: BrandingComponent,\n  parameters: {\n    layout: 'centered',\n  },\n  tags: ['autodocs'],\n}"
+            },
+            {
+                "name": "Minimal",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/elements-angular/src/branding.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    variant: 'minimal',\n  },\n}"
             },
             {
                 "name": "preview",
@@ -41,14 +71,14 @@
                 "defaultValue": "{\n  parameters: {\n    controls: {\n      matchers: {\n       color: /(background|color)$/i,\n       date: /Date$/i,\n      },\n    },\n  },\n}"
             },
             {
-                "name": "WithCustomOptions",
+                "name": "Small",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                "file": "projects/elements-angular/src/branding.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\n  args: {\n    options: {\n      displayMode: 'email',\n      locale: 'en-US',\n    },\n  },\n}"
+                "defaultValue": "{\n  args: {\n    size: 'small',\n  },\n}"
             }
         ],
         "functions": [],
@@ -57,8 +87,8 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<UnlayerBuilder>",
-                "file": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                "rawtype": "StoryObj<BrandingComponent>",
+                "file": "projects/elements-angular/src/branding.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -67,36 +97,66 @@
         ],
         "enumerations": [],
         "groupedVariables": {
-            "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts": [
+            "projects/elements-angular/src/branding.stories.ts": [
                 {
                     "name": "Default",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                    "file": "projects/elements-angular/src/branding.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
                     "defaultValue": "{\n  args: {},\n}"
                 },
                 {
-                    "name": "meta",
+                    "name": "Full",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Meta<UnlayerBuilder>",
-                    "defaultValue": "{\n  title: 'Components/UnlayerBuilder',\n  component: UnlayerBuilder,\n  parameters: {\n    layout: 'fullscreen',\n  },\n  tags: ['autodocs'],\n}"
-                },
-                {
-                    "name": "WithCustomOptions",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                    "file": "projects/elements-angular/src/branding.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\n  args: {\n    options: {\n      displayMode: 'email',\n      locale: 'en-US',\n    },\n  },\n}"
+                    "defaultValue": "{\n  args: {\n    variant: 'full',\n  },\n}"
+                },
+                {
+                    "name": "Large",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/elements-angular/src/branding.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    size: 'large',\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/elements-angular/src/branding.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<BrandingComponent>",
+                    "defaultValue": "{\n  title: 'Components/Branding',\n  component: BrandingComponent,\n  parameters: {\n    layout: 'centered',\n  },\n  tags: ['autodocs'],\n}"
+                },
+                {
+                    "name": "Minimal",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/elements-angular/src/branding.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    variant: 'minimal',\n  },\n}"
+                },
+                {
+                    "name": "Small",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/elements-angular/src/branding.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    size: 'small',\n  },\n}"
                 }
             ],
             ".storybook/preview.ts": [
@@ -115,13 +175,13 @@
         "groupedFunctions": {},
         "groupedEnumerations": {},
         "groupedTypeAliases": {
-            "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts": [
+            "projects/elements-angular/src/branding.stories.ts": [
                 {
                     "name": "Story",
                     "ctype": "miscellaneous",
                     "subtype": "typealias",
-                    "rawtype": "StoryObj<UnlayerBuilder>",
-                    "file": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                    "rawtype": "StoryObj<BrandingComponent>",
+                    "file": "projects/elements-angular/src/branding.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -146,7 +206,7 @@
                 "status": "low"
             },
             {
-                "filePath": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                "filePath": "projects/elements-angular/src/branding.stories.ts",
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
@@ -156,7 +216,27 @@
                 "status": "low"
             },
             {
-                "filePath": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                "filePath": "projects/elements-angular/src/branding.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Full",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/elements-angular/src/branding.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Large",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/elements-angular/src/branding.stories.ts",
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
@@ -166,17 +246,27 @@
                 "status": "low"
             },
             {
-                "filePath": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                "filePath": "projects/elements-angular/src/branding.stories.ts",
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
-                "name": "WithCustomOptions",
+                "name": "Minimal",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
             },
             {
-                "filePath": "projects/unlayer-angular/src/lib/unlayer-builder.stories.ts",
+                "filePath": "projects/elements-angular/src/branding.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Small",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/elements-angular/src/branding.stories.ts",
                 "type": "type alias",
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",
