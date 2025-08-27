@@ -50,7 +50,7 @@ describe('Branding Web Component', () => {
 
   it('applies custom styles', () => {
     const branding = document.createElement('unlayer-branding') as Branding;
-    branding.style = 'color: red;';
+    branding.inlineStyle = 'color: red;';
     container.appendChild(branding);
     
     const div = branding.shadowRoot?.querySelector('div');

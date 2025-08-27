@@ -75,11 +75,11 @@ export class Branding extends HTMLElement {
     this.setAttribute('class', value);
   }
 
-  get style() {
+  get inlineStyle() {
     return this._style;
   }
 
-  set style(value: string) {
+  set inlineStyle(value: string) {
     this._style = value;
     this.setAttribute('style', value);
   }

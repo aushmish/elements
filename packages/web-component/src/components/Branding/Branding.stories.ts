@@ -32,7 +32,7 @@ const meta: Meta<Branding> = {
       control: { type: 'text' },
       description: 'Custom CSS class name',
     },
-    style: {
+    inlineStyle: {
       control: { type: 'text' },
       description: 'Custom CSS styles',
     },
@@ -74,7 +74,7 @@ export const Large: Story = {
 export const CustomStyling: Story = {
   args: {
     className: 'custom-branding',
-    style: 'color: #007bff; font-size: 18px; font-weight: bold;',
+    inlineStyle: 'color: #007bff; font-size: 18px; font-weight: bold;',
   },
 };
 
