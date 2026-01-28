@@ -1,6 +1,6 @@
 {
   "name": "@unlayer/angular-elements",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Angular components for building emails, pages, and documents with Unlayer Elements",
   "license": "MIT",
   "author": "Unlayer",
