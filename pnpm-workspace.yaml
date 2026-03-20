@@ -2,4 +2,6 @@ packages:
   - 'packages/*'
   - 'examples/*'
 
-nodeLinker: isolated
+catalog:
+  "@unlayer/exporters": "1.389.0"
+  "@unlayer/types": "1.389.0"
