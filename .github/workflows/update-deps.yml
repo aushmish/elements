@@ -12,6 +12,11 @@ on:
     - cron: '0 9 * * *' # daily at 9am UTC
   workflow_dispatch:
 
+# Prevent concurrent runs from racing on the same branch/PR
+concurrency:
+  group: update-unlayer-deps
+  cancel-in-progress: true
+
 jobs:
   check-updates:
     name: Check for updates
@@ -60,35 +65,53 @@ jobs:
 
           echo "changed=$CHANGED" >> $GITHUB_OUTPUT
 
-      - name: Create PR
+      - name: Create or update PR
         if: steps.check.outputs.changed == 'true'
         run: |
-          BRANCH="deps/update-unlayer-$(date +%Y%m%d)"
+          # Use a fixed branch name so we always update the same PR
+          BRANCH="deps/update-unlayer"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Check if branch already exists
-          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
-            echo "Branch $BRANCH already exists — skipping"
-            exit 0
-          fi
-
-          git checkout -b "$BRANCH"
 
           # Update lockfile to match new catalog versions
           pnpm install --lockfile-only
 
+          # Check if an open PR already exists for this branch
+          # Use // empty so jq returns nothing (not "null") when no PRs exist
+          EXISTING_PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ $? -ne 0 ]; then
+            echo "Error: failed to query existing pull requests"
+            exit 1
+          fi
+
+          # Fetch the remote branch if it exists
+          git fetch origin "$BRANCH" 2>/dev/null || true
+
+          # Both paths: create branch from current HEAD (main) with updated files
+          git checkout -B "$BRANCH"
           git add pnpm-workspace.yaml pnpm-lock.yaml
+
+          # Skip if nothing changed (e.g., re-run with same versions already on branch)
+          if git diff --cached --quiet; then
+            echo "No changes to commit — already up to date"
+            exit 0
+          fi
+
           git commit -m "deps: update @unlayer/exporters and @unlayer/types"
-          git push -u origin "$BRANCH"
+          git push --force-with-lease origin "$BRANCH"
 
           PACKAGES=$(grep '@unlayer' pnpm-workspace.yaml | sed 's/^ */- /')
           BODY="Automated update of upstream Unlayer dependencies to latest versions."$'\n\n'"Updated packages (pnpm catalog):"$'\n'"$PACKAGES"
 
-          gh pr create \
-            --title "deps: update @unlayer/exporters and @unlayer/types" \
-            --body "$BODY" \
-            --base main \
-            --head "$BRANCH"
+          if [ -n "$EXISTING_PR" ]; then
+            echo "Updating existing PR #$EXISTING_PR"
+            gh pr edit "$EXISTING_PR" --body "$BODY"
+          else
+            gh pr create \
+              --title "deps: update @unlayer/exporters and @unlayer/types" \
+              --body "$BODY" \
+              --base main \
+              --head "$BRANCH"
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
