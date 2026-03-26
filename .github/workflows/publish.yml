@@ -182,11 +182,16 @@ jobs:
           echo "| **ESM bundle** | ${BUNDLE_SIZE} bytes |" >> $GITHUB_STEP_SUMMARY
           echo "| **Files in dist** | ${FILE_COUNT} |" >> $GITHUB_STEP_SUMMARY
 
-      # Publish with npm directly (not pnpm) for OIDC compatibility.
+      # Two-step publish: pnpm pack resolves catalog: protocol to real
+      # version numbers, then npm publish handles OIDC trusted publishing.
+      # npm publish alone does NOT understand catalog: and would ship broken deps.
       # No --provenance flag — not supported for private source repos.
       - name: Publish to npm (trusted publishing)
         working-directory: packages/react
-        run: npm publish --access public
+        run: |
+          pnpm pack --pack-destination /tmp
+          TARBALL=$(ls /tmp/unlayer-react-elements-*.tgz)
+          npm publish "$TARBALL" --access public
 
       - name: Tag release
         run: |
