@@ -2,6 +2,7 @@
 #
 # Checks npm for new versions of @unlayer/exporters and @unlayer/types
 # and opens a PR to update the pnpm catalog if newer versions exist.
+# Runs build + tests first and includes the result in the PR body.
 #
 # Runs daily and on manual dispatch.
 
@@ -65,6 +66,37 @@ jobs:
 
           echo "changed=$CHANGED" >> $GITHUB_OUTPUT
 
+      - name: Install dependencies
+        if: steps.check.outputs.changed == 'true'
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build and test
+        id: verify
+        if: steps.check.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          set +e
+
+          pnpm build 2>&1
+          BUILD_EXIT=$?
+
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo "status=failed" >> $GITHUB_OUTPUT
+            echo "error=Build failed" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          pnpm test 2>&1
+          TEST_EXIT=$?
+
+          if [ $TEST_EXIT -ne 0 ]; then
+            echo "status=failed" >> $GITHUB_OUTPUT
+            echo "error=Tests failed" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "status=passed" >> $GITHUB_OUTPUT
+
       - name: Create or update PR
         if: steps.check.outputs.changed == 'true'
         run: |
@@ -72,9 +104,6 @@ jobs:
           BRANCH="deps/update-unlayer"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Update lockfile to match new catalog versions
-          pnpm install --lockfile-only
 
           # Check if an open PR already exists for this branch
           # Use // empty so jq returns nothing (not "null") when no PRs exist
@@ -100,8 +129,22 @@ jobs:
           git commit -m "deps: update @unlayer/exporters and @unlayer/types"
           git push --force-with-lease origin "$BRANCH"
 
+          # Build PR body with test status
           PACKAGES=$(grep '@unlayer' pnpm-workspace.yaml | sed 's/^ */- /')
-          BODY="Automated update of upstream Unlayer dependencies to latest versions."$'\n\n'"Updated packages (pnpm catalog):"$'\n'"$PACKAGES"
+          STATUS="${{ steps.verify.outputs.status }}"
+
+          ERROR="${{ steps.verify.outputs.error }}"
+          if [ -z "$ERROR" ]; then
+            ERROR="Build or tests did not complete. See workflow logs for details."
+          fi
+
+          if [ "$STATUS" = "passed" ]; then
+            STATUS_LINE="✅ **Build & tests passed** — safe to merge."
+          else
+            STATUS_LINE="❌ **$ERROR** — check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details."
+          fi
+
+          BODY="${STATUS_LINE}"$'\n\n'"Updated packages (pnpm catalog):"$'\n'"${PACKAGES}"
 
           if [ -n "$EXISTING_PR" ]; then
             echo "Updating existing PR #$EXISTING_PR"
