@@ -70,6 +70,15 @@ jobs:
       - name: Run test coverage
         run: pnpm test:coverage
 
+      # ── CSP safety gate ─────────────────────────────────────────
+      # Imports + renders the built bundle under V8's
+      # --disallow-code-generation-from-strings (a CSP without 'unsafe-eval').
+      # HARD gate: fails if this package OR its pinned @unlayer/exporters
+      # evaluates a string at import/render. Stays red until the catalog pins a
+      # CSP-safe (precompiled-template) @unlayer/exporters release.
+      - name: CSP safety gate
+        run: pnpm --filter @unlayer/react-elements test:csp
+
       # ── Storybook browser smoke test ────────────────────────────
       # Opens every story in headless Chromium and asserts each component
       # paints visible content with no console / page errors. Runs against the
