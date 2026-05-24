@@ -98,6 +98,7 @@ Example: `<Button fontSize="16px">` → `{ style: { fontSize: "16px" } }` in the
 - **Golden template test**: `packages/react/src/golden-template.test.tsx` — full realistic email through all 4 render pipelines
 - **Node environment test**: `packages/react/src/node-import.test.ts` — verifies no browser API dependency
 - **Next.js integration**: `tests/nextjs-integration/` — real Next.js 15 app build with Server Components
+- **Storybook smoke test**: `packages/react/.storybook/test-runner.ts` — opens every story in headless Chromium and asserts each component paints visible content with no console / page errors. Runs against both the dev server (`pnpm test-storybook`) and the production static build (`pnpm test-storybook:ci`). Note: Storybook bundles from `src/` via Vite — the published `dist/` artifact is covered by the Next.js integration.
 
 ## CI Quality Gates
 
@@ -105,6 +106,7 @@ Example: `<Button fontSize="16px">` → `{ style: { fontSize: "16px" } }` in the
 - All unit tests pass
 - Bundle size < 60KB (ESM)
 - Next.js integration build succeeds
+- Storybook smoke test passes (every story renders, no console errors)
 
 ## Common Gotchas
 

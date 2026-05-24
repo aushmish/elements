@@ -70,6 +70,16 @@ jobs:
       - name: Run test coverage
         run: pnpm test:coverage
 
+      # ── Storybook browser smoke test ────────────────────────────
+      # Opens every story in headless Chromium and asserts each component
+      # paints visible content with no console / page errors. Runs against the
+      # production static build (storybook build → http-server).
+      - name: Install Playwright Chromium
+        run: pnpm --filter @unlayer/react-elements exec playwright install --with-deps chromium
+
+      - name: Storybook smoke test
+        run: pnpm --filter @unlayer/react-elements test-storybook:ci
+
       # ── Next.js integration test ────────────────────────────────
       # Packs the built react-elements as a tarball and installs it
       # in a real Next.js app — exactly like a consumer would.
