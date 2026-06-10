@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://unlayer.com/logo.svg" alt="Unlayer Elements" width="200" />
+  <img src="https://unlayer.com/logo_square.png" alt="Unlayer Elements" width="50" />
 </p>
 
 <h1 align="center">Unlayer Elements</h1>
@@ -22,6 +22,15 @@ Write email templates, landing pages, and printable documents using familiar Rea
 - **Email** — table-based HTML safe for Outlook, Gmail, Yahoo, and all major email clients
 - **Web** — responsive div + flexbox HTML for web pages
 - **Document** — print-optimized HTML for PDF generation
+
+
+### How It Works
+
+Write once in React. Render anywhere — email, web or PDF.
+
+<p align="center">
+  <img src="https://unlayer.com/images/unlayer-elements-dark.png" alt="Unlayer Elements: Architecture" width="1200" />
+</p>
 
 ## Quick Start
 
