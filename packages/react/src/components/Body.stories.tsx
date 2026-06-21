@@ -541,7 +541,7 @@ export const SaaSLanding: Story = {
       backgroundColor="#09090b"
       textColor="#fafafa"
       contentAlign="center"
-      contentWidth="800px"
+      contentWidth="680px"
       mode="web"
     >
       {/* Nav / Brand */}
@@ -665,7 +665,8 @@ export const SaaSLanding: Story = {
         mode="web"
       >
         <Column padding="0 24px 0 0">
-          <Paragraph
+          <Heading
+            level="h3"
             text="140ms"
             fontSize="40px"
             fontWeight={800}
@@ -687,7 +688,8 @@ export const SaaSLanding: Story = {
           />
         </Column>
         <Column padding="0 12px">
-          <Paragraph
+          <Heading
+            level="h3"
             text="99.99%"
             fontSize="40px"
             fontWeight={800}
@@ -709,7 +711,8 @@ export const SaaSLanding: Story = {
           />
         </Column>
         <Column padding="0 0 0 24px">
-          <Paragraph
+          <Heading
+            level="h3"
             text="12,000+"
             fontSize="40px"
             fontWeight={800}
@@ -1032,7 +1035,7 @@ export const Magazine: Story = {
       backgroundColor="#f5f0eb"
       textColor="#1a1a1a"
       contentAlign="center"
-      contentWidth="960px"
+      contentWidth="680px"
       mode="web"
     >
       {/* Full-bleed Hero Image */}
@@ -1061,7 +1064,7 @@ export const Magazine: Story = {
       <Row
         layout={ColumnLayouts.OneColumn}
         backgroundColor="rgba(18, 12, 8, 0.88)"
-        padding="64px 80px"
+        padding="60px 56px"
         mode="web"
       >
         <Column>
@@ -1104,7 +1107,7 @@ export const Magazine: Story = {
             textAlign="center"
             lineHeight="1.75"
             fontFamily={{ label: "Georgia", value: "Georgia, 'Times New Roman', serif" }}
-            containerPadding="0 60px"
+            containerPadding="0 28px"
           />
         </Column>
       </Row>

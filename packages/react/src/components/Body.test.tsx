@@ -69,6 +69,48 @@ describe("Body Component", () => {
     expect(container.innerHTML).toContain("v:roundrect");
   });
 
+  // Regression: <Body contentWidth> must drive the row container width.
+  // Previously Body cloned children with only `_config`, so Row fell back to
+  // BODY_DEFAULTS.contentWidth ("500px") and the prop was ignored for layout —
+  // which made multi-column web layouts compute the wrong column widths.
+  it("threads contentWidth to the row container (web)", () => {
+    const { container } = render(
+      <Body contentWidth="960px" mode="web">
+        <Row><Column><Paragraph>x</Paragraph></Column></Row>
+      </Body>
+    );
+    expect(container.innerHTML).toContain("max-width: 960px");
+    expect(container.innerHTML).not.toContain("max-width: 500px");
+  });
+
+  it("falls back to the default contentWidth when unset", () => {
+    const { container } = render(
+      <Body mode="web">
+        <Row><Column><Paragraph>x</Paragraph></Column></Row>
+      </Body>
+    );
+    expect(container.innerHTML).toContain("max-width: 500px");
+  });
+
+  // Email is the primary channel: the responsive grid CSS must size desktop
+  // columns to the real contentWidth, not a hardcoded 600px. Previously
+  // generateGridCSS ran with the 600 default, so a multi-column email's
+  // media-query widths didn't match its table width.
+  it("scales email grid column widths to contentWidth (not a hardcoded 600px)", () => {
+    const { container } = render(
+      <Body contentWidth="700px" mode="email">
+        <Row cells={[1, 1]}>
+          <Column><Paragraph mode="email">A</Paragraph></Column>
+          <Column><Paragraph mode="email">B</Paragraph></Column>
+        </Row>
+      </Body>
+    );
+    // desktop media query: row at 700, each 50% column at 350 — not 600/300
+    expect(container.innerHTML).toContain("width: 700px !important");
+    expect(container.innerHTML).toContain("width: 350px !important");
+    expect(container.innerHTML).not.toContain("width: 600px !important");
+  });
+
   it("has correct displayName", () => {
     expect(Body.displayName).toBe("Body");
   });
