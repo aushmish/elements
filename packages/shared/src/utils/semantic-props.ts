@@ -79,6 +79,71 @@ function analyzeNestedStructure(defaultValues: any): Map<string, Set<string>> {
 }
 
 /**
+ * Coerce CSS-idiom flat prop values to the shapes the exporters expect.
+ * Mutates the given props object in place. Each rule fixes a footgun where the
+ * natural/CSS form type-checks (flat props are loosely typed) but renders blank
+ * or invalid:
+ * - `fontFamily: "Arial"` → `{ label, value }` (a bare string is otherwise
+ *   char-spread when merged into the fontFamily group, dropping the font).
+ * - `fontWeight: "700"` → `700` (numeric string → number; keyword strings like
+ *   "bold"/"normal" are valid CSS and left as-is).
+ * - `fontSize: 28` → `"28px"` (a unitless number is invalid CSS the browser
+ *   ignores). Same for other bare-number size fields.
+ * - `lineHeight: 1.4` → `"1.4"` (the field is typed as a string; unitless
+ *   line-height is valid CSS).
+ */
+const PX_SIZE_KEYS = [
+  "fontSize",
+  "padding",
+  "containerPadding",
+  "borderRadius",
+  "letterSpacing",
+] as const;
+
+function normalizeCssProps(props: Record<string, any>): void {
+  if (typeof props.fontFamily === "string") {
+    const v = props.fontFamily;
+    props.fontFamily = { label: v, value: v };
+  }
+  if (
+    typeof props.fontWeight === "string" &&
+    /^\d+$/.test(props.fontWeight.trim())
+  ) {
+    props.fontWeight = Number(props.fontWeight.trim());
+  }
+  if (typeof props.lineHeight === "number") {
+    props.lineHeight = String(props.lineHeight);
+  }
+  for (const key of PX_SIZE_KEYS) {
+    const v = props[key];
+    // bare number (28) or a unit-less numeric string ("0", "20") → "<n>px"
+    if (typeof v === "number") {
+      props[key] = `${v}px`;
+    } else if (typeof v === "string" && /^\d+$/.test(v.trim())) {
+      props[key] = `${v.trim()}px`;
+    }
+  }
+}
+
+/**
+ * Flatten a JSX/ReactNode children tree to its plain text content.
+ * Text components store a string (or Lexical JSON derived from one); a raw React
+ * element passed as children would otherwise stringify to "[object Object]".
+ * Duck-types the element shape (`.props.children`) so this stays framework-free.
+ * Inline formatting is not preserved — use the `html` prop for rich text.
+ */
+function flattenChildrenText(node: any): string {
+  if (node == null || typeof node === "boolean") return "";
+  if (typeof node === "string") return node;
+  if (typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(flattenChildrenText).join("");
+  if (typeof node === "object" && "props" in node) {
+    return flattenChildrenText(node.props?.children);
+  }
+  return "";
+}
+
+/**
  * Universal semantic props mapper
  * Works for ANY component - no configuration needed!
  *
@@ -103,11 +168,12 @@ export function mapSemanticProps<T extends Record<string, any>>(
   // Note: editor-types codegen renamed text→textJson for Button/Heading but
   // the exporter still uses plain text at runtime via generateHtmlFromTextJson
   if (children !== undefined && !result.text && !result.textJson) {
+    const textContent =
+      typeof children === "string" ? children : flattenChildrenText(children);
     if (componentType === "Paragraph") {
-      const textContent = typeof children === "string" ? children : String(children);
       result.textJson = textToTextJson(textContent);
     } else {
-      result.text = children;
+      result.text = textContent;
     }
   }
 
@@ -150,6 +216,14 @@ export function mapSemanticProps<T extends Record<string, any>>(
       };
     }
   }
+
+  // Normalize CSS-idiom prop values to the shapes the exporters expect. Authors
+  // (humans and AI) reach for CSS habits — a string `fontFamily`, a numeric
+  // `fontSize`, a string `fontWeight` — which type-check (flat props are loose)
+  // but otherwise render blank or invalid. Coercing the natural form here makes
+  // it render correctly. Applied to flat props only; the `values` escape hatch
+  // is the full-control path and is left untouched.
+  normalizeCssProps(userProps);
 
   // Analyze default values to detect nested object structure
   const nestedGroups = analyzeNestedStructure(defaultValues);
@@ -199,6 +273,28 @@ export function mapSemanticProps<T extends Record<string, any>>(
         ...result[groupName],
         ...groupValues
       };
+    }
+  }
+
+  // Some components (e.g. Column) ship an empty `border: {}` default, so the
+  // nested-group detector can't see the border sub-keys and flat border-side
+  // props (borderTopWidth, …) would land loose and be dropped by the exporter.
+  // If the component declares a `border` field, gather them into it.
+  if (
+    defaultValues &&
+    typeof defaultValues === "object" &&
+    "border" in (defaultValues as object)
+  ) {
+    const borderSideRe = /^border(Top|Right|Bottom|Left)(Width|Style|Color)$/;
+    const collected: Record<string, any> = {};
+    for (const key of Object.keys(final)) {
+      if (borderSideRe.test(key)) {
+        collected[key] = final[key];
+        delete final[key];
+      }
+    }
+    if (Object.keys(collected).length > 0) {
+      final.border = { ...(final.border || {}), ...collected };
     }
   }
 

@@ -51,14 +51,17 @@ function WelcomeEmail() {
 
 These props have non-obvious shapes that **must** be followed exactly:
 
-- **fontFamily**: Must be `{ label: string, value: string }`, NOT a plain string.
+- **fontFamily**: Accepts a plain family-name string (`fontFamily="Georgia"`) or, for a full stack, `{ label, value }` (recommended).
   ```tsx
   fontFamily={{ label: "Arial", value: "arial, sans-serif" }}
   ```
-- **fontWeight**: Must be a number (`400`, `700`), NOT a string (`"400"`).
+- **fontWeight**: Accepts a number (`700`), a numeric string (`"700"`), or a CSS keyword (`"bold"`).
+- **fontSize / padding**: Accept a CSS string (`"28px"`, `"20px 40px"`) or a bare number (treated as px: `fontSize={28}` → `28px`).
+- **lineHeight**: Accepts a CSS string (`"1.4"`, `"140%"`) or a bare number (kept **unitless**: `lineHeight={1.4}` → `"1.4"`).
 - **Wrapper component**: Use `<Email>`, `<Page>`, or `<Document>` as root — they set the rendering mode automatically.
 - **href**: Can be a plain string URL (auto-wrapped) or `{ name: "web", values: { href, target } }`.
-- **Image src**: Can be a plain string URL (auto-wrapped) or `{ url, width?, autoWidth?, maxWidth? }`.
+- **Image sizing**: `src` is a plain URL string or `{ url, width?, height?, ... }`, where `width`/`height` are the image's **natural** size. By default an image is **responsive** — it fills its container, capped at its natural size. For a **fixed** display size, use a **percent**: `width="50%"` or `maxWidth="50%"`. A px/number `width` is treated as the natural size, so `width="300px"` shows the image at up to 300px (responsive).
+- **Heading level**: `headingType` (or its alias `level`) accepts `h1`–`h6`.
 - **children**: Text components accept children as shorthand. `<Heading>Hello</Heading>` sets the heading text. `<Paragraph>` supports children for plain text.
 - **Paragraph text**: Use `html` prop for text content (supports inline formatting like `<b>`, `<a>`). Use children for plain text.
 
@@ -154,6 +157,7 @@ Must be child of Row. Count must match layout.
 - `fontFamily?: { label: string, value: string }`
 - `padding?: string` — `"10px 20px"`
 - `borderRadius?: string` — `"4px"`
+- `width?: number | string` — display width; `width="100%"` makes the button full-width, `width="200px"` pins it
 - `textAlign?: "left" | "center" | "right"` — `"center"`
 
 ### Paragraph
@@ -439,13 +443,12 @@ const monoFont = { label: "Monospace", value: "'SF Mono', 'Fira Code', 'Roboto M
 
 ## Common Mistakes
 
-1. **fontFamily as string** — `fontFamily="Arial"` → Must be `fontFamily={{ label: "Arial", value: "arial, sans-serif" }}`
-2. **fontWeight as string** — `fontWeight="700"` → Must be `fontWeight={700}`
-3. **Column count mismatch** — `TwoEqual` layout requires exactly 2 `<Column>` children
-4. **Missing Column** — Items must be inside `<Column>`, never directly in `<Row>`
-5. **Missing Row** — Columns must be inside `<Row>`, never directly in `<Email>`/`<Page>`/`<Document>`
-6. **Paragraph text prop** — Use `html` prop or children, not `text` (which is not typed for Paragraph)
-7. **padding without units** — Use `padding="0px"` not `padding="0"` — the type requires the `px` suffix for consistency
+1. **Column count mismatch** — `TwoEqual` layout requires exactly 2 `<Column>` children
+2. **Missing Column** — Items must be inside `<Column>`, never directly in `<Row>`
+3. **Missing Row** — Columns must be inside `<Row>`, never directly in `<Email>`/`<Page>`/`<Document>`
+4. **JSX formatting in children** — `<Heading>Hi <b>x</b></Heading>` is flattened to plain text (the formatting is **not** preserved). For inline formatting use `<Paragraph html="Hi <b>x</b>" />`.
+
+> Note: the CSS-idiom forms that used to be mistakes now work — a string `fontFamily`, a string/number `fontWeight`, a numeric `fontSize`, `padding="0"`, and `<Paragraph text="..." />` are all accepted and normalized. The object/numeric forms above are still recommended for clarity.
 
 ## Development
 
