@@ -1,7 +1,7 @@
 import React from "react";
 import type { RenderMode, UnlayerConfig, ColumnValues } from "@unlayer-internal/shared-elements";
 import { ColumnExporters, ContentExporters } from "@unlayer/exporters";
-import { UNLAYER_RENDER_KEY } from "../utils/create-component";
+import { UNLAYER_RENDER_KEY, nextHtmlId } from "../utils/create-component";
 import { mapSemanticProps, type SemanticProps } from "../utils/semantic-props";
 import type { SizeInput, BorderInput } from "../types";
 import { COLUMN_DEFAULTS } from "../utils/container-defaults";
@@ -105,7 +105,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
   const valuesWithMeta = {
     ...values,
     _meta: {
-      htmlID: `u_column_${index + 1}`,
+      htmlID: nextHtmlId(_config, "u_column"),
       htmlClassNames: "u_column",
       ...(values._meta || {})
     }
@@ -126,7 +126,19 @@ export const Column: React.FC<ColumnProps> = (props) => {
             const ComponentType = child.type as any;
             // Use __unlayerRender (hook-free) if available, otherwise call directly
             const renderFn: Function = ComponentType[UNLAYER_RENDER_KEY] || ComponentType;
-            const rendered = renderFn({ ...child.props, _config });
+            // Thread the column/body context so width-aware item exporters (Image)
+            // can size against the real available width (contentWidth × column
+            // fraction) instead of the fallback. Mirrors the editor, which passes
+            // this context to the content exporters.
+            const rendered = renderFn({
+              ...child.props,
+              _config,
+              colIndex: index,
+              cells,
+              bodyValues,
+              rowValues,
+              columnValues: valuesWithMeta,
+            });
 
             // Extract HTML from dangerouslySetInnerHTML
             if (
@@ -155,19 +167,24 @@ export const Column: React.FC<ColumnProps> = (props) => {
               // `child.props.values?.containerPadding` only, which is undefined
               // for the flat-prop API, so every block collapsed to 0px padding.)
               const childProps = child.props as {
-                containerPadding?: string;
-                values?: { containerPadding?: string };
+                containerPadding?: string | number;
+                values?: { containerPadding?: string | number };
               };
-              const containerPadding =
+              const rawContainerPadding =
                 childProps.containerPadding ??
                 childProps.values?.containerPadding ??
                 DEFAULT_CONTAINER_PADDING;
+              // A bare number is treated as px (same idiom as other size props).
+              const containerPadding =
+                typeof rawContainerPadding === "number"
+                  ? `${rawContainerPadding}px`
+                  : rawContainerPadding;
 
               // Wrap via the canonical content-container exporter for this mode.
               const contentValues = {
                 containerPadding,
                 _meta: {
-                  htmlID: `u_content_${componentName}_${childIndex + 1}`,
+                  htmlID: nextHtmlId(_config, `u_content_${componentName}`),
                   htmlClassNames: `u_content_${componentName}`,
                 },
               };

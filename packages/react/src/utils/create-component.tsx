@@ -12,6 +12,7 @@ import type { ExporterName } from "@unlayer/types";
 /** Exporter map keyed by display mode. Defined locally until added to @unlayer/types. */
 type ItemExporters = Partial<Record<ExporterName, (...args: any[]) => string>>;
 import type { RenderMode, UnlayerConfig } from "@unlayer-internal/shared-elements";
+import type { SizeInput } from "../types";
 import {
   mergeValues,
   generateHtmlFromTextJson,
@@ -41,6 +42,9 @@ export interface BaseItemComponentProps {
   className?: string;
   style?: React.CSSProperties;
   mode?: RenderMode;
+  /** Padding of the content wrapper around this item — a number (→ px) or a CSS
+   *  string ("10px", "16px 24px"). Applied by the containing Column. */
+  containerPadding?: SizeInput;
 
   // Internal props (for advanced use)
   index?: number;
@@ -48,6 +52,8 @@ export interface BaseItemComponentProps {
   cells?: any[];
   bodyValues?: any;
   rowValues?: any;
+  /** @internal - this column's values, threaded by Column for width-aware exporters */
+  columnValues?: any;
   /** @internal - Unlayer config threaded from UnlayerProvider */
   _config?: UnlayerConfig;
 }
@@ -124,9 +130,25 @@ interface RenderConfig<T = any> {
   className?: string;
   style?: React.CSSProperties;
   args?: any[];
+  /** Column/body context merged into the exporter `meta` (8th arg). */
+  metaContext?: Record<string, any>;
   innerHTML?: string;
   _config?: UnlayerConfig;
   exporter: Function;
+}
+
+/**
+ * Allocate the next unique HTML id for a prefix, scoped to one render.
+ * Counters live on the threaded `_config` (`__ids`), which Body resets per
+ * render — so renderToHtml produces unique ids (u_row_1, u_row_2, …) like the
+ * editor and like renderToJson, instead of resetting per row. Falls back to
+ * `${prefix}_1` when rendered standalone (no _config).
+ */
+export function nextHtmlId(config: any, prefix: string): string {
+  if (!config) return `${prefix}_1`;
+  const ids: Record<string, number> = (config.__ids ??= {});
+  ids[prefix] = (ids[prefix] || 0) + 1;
+  return `${prefix}_${ids[prefix]}`;
 }
 
 /** Add _meta fields if not present. */
@@ -146,7 +168,7 @@ function ensureMeta(values: any, type: string, index: number = 0): any {
  * Handles error boundaries, exporterConfig construction, and container vs item calling conventions.
  */
 function renderComponent<T = any>(config: RenderConfig<T>): JSX.Element {
-  const { type, values, mode, className, style, args = [], innerHTML, _config, exporter } = config;
+  const { type, values, mode, className, style, args = [], innerHTML, _config, exporter, metaContext } = config;
 
   try {
     // Build exporterConfig from _config (falls back to defaults)
@@ -170,6 +192,7 @@ function renderComponent<T = any>(config: RenderConfig<T>): JSX.Element {
       const meta = {
         exporterConfig,
         mergeTagState: cfg.mergeTagState,
+        ...(metaContext ?? {}),
       };
       html = exporter(values, ...args, undefined, meta);
     }
@@ -240,6 +263,7 @@ export function createItemComponent<
       cells = [],
       bodyValues = {},
       rowValues = {},
+      columnValues = {},
       _config,
 
       // Children
@@ -268,9 +292,12 @@ export function createItemComponent<
       index
     );
 
-    // 4. Ensure bodyValues has required fields
+    // 4. Ensure bodyValues has a contentWidth. Default to the schema-shaped
+    //    "500px" (matches BodyDefaults.contentWidth and the exporter's image
+    //    fallback width), so a standalone item (no Body) sizes the same as the
+    //    editor and the value is a CSS string everywhere it might be consumed.
     const safeBodyValues = {
-      contentWidth: 600,
+      contentWidth: "500px",
       ...bodyValues
     };
 
@@ -293,6 +320,15 @@ export function createItemComponent<
       className,
       style,
       args: [index, colIndex, cells, safeBodyValues, rowValues],
+      // The 8th arg the exporters actually read: column/body context for
+      // width-aware rendering (Image's available-width calc), mirroring the editor.
+      metaContext: {
+        columnIndex: colIndex,
+        columnValues,
+        rowCells: cells,
+        rowValues,
+        bodyValues: safeBodyValues,
+      },
       _config,
       exporter,
     });
