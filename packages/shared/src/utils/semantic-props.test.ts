@@ -212,7 +212,7 @@ describe("mapSemanticProps", () => {
       });
     });
 
-    it("passes object href through unchanged", () => {
+    it("passes a canonical object href ({name, values}) through unchanged", () => {
       const hrefObj = { name: "email", values: { href: "mailto:test@test.com" } };
       const result = mapSemanticProps(
         { href: hrefObj },
@@ -220,6 +220,32 @@ describe("mapSemanticProps", () => {
         "Button"
       );
       expect(result.href).toEqual(hrefObj);
+    });
+
+    it("canonicalizes an attrs href into values.href so the editor reads it", () => {
+      // The link must land in `values.href` (where the Builder reads it), not be
+      // left in `attrs` with an empty values.href — otherwise renderToJson →
+      // editor loses the link even though renderToHtml renders it.
+      const result = mapSemanticProps(
+        { href: { name: "web", attrs: { href: "https://x.com/cta", target: "_self" } } },
+        BUTTON_DEFAULTS,
+        "Button"
+      );
+      expect((result.href as any).values).toEqual({
+        href: "https://x.com/cta",
+        target: "_self",
+      });
+      expect((result.href as any).attrs).toBeUndefined();
+    });
+
+    it("keeps genuine custom attrs while lifting the href into values", () => {
+      const result = mapSemanticProps(
+        { href: { name: "web", values: { href: "https://x.com/v" }, attrs: { class: "cta" } } },
+        BUTTON_DEFAULTS,
+        "Button"
+      );
+      expect((result.href as any).values.href).toBe("https://x.com/v");
+      expect((result.href as any).attrs).toEqual({ class: "cta" });
     });
   });
 
@@ -288,6 +314,32 @@ describe("normalizeLinkValue", () => {
   it("returns undefined for unknown shapes (caller keeps original)", () => {
     expect(normalizeLinkValue({ random: "thing" })).toBeUndefined();
     expect(normalizeLinkValue(42)).toBeUndefined();
+  });
+
+  it("returns undefined for a bare {name} with no values/attrs (not a link)", () => {
+    // Honor the contract: only the actual storage variants (values or attrs)
+    // normalize; a name-only object falls through so the caller keeps it.
+    expect(normalizeLinkValue({ name: "web" })).toBeUndefined();
+  });
+
+  it("reads href/target from `attrs` (the alias the canonical Href type exposes)", () => {
+    expect(
+      normalizeLinkValue({ name: "web", attrs: { href: "https://x.com/a", target: "_self" } })
+    ).toEqual({ url: "https://x.com/a", target: "_self" });
+  });
+
+  it("an empty `values.href` (the schema default) falls through to `attrs.href`", () => {
+    // mergeValues merges the schema default `values: { href: "" }` in, so an empty
+    // values.href must NOT win over an attrs href — guards the `||` vs `??` fix.
+    expect(
+      normalizeLinkValue({ name: "web", values: { href: "" }, attrs: { href: "https://x.com/a" } })
+    ).toEqual({ url: "https://x.com/a", target: "_blank" });
+  });
+
+  it("keeps genuine custom attrs (non href/target) on the render value", () => {
+    expect(
+      normalizeLinkValue({ name: "web", values: { href: "https://x.com/v" }, attrs: { class: "cta", "data-id": "7" } })
+    ).toEqual({ url: "https://x.com/v", target: "_blank", class: "cta", "data-id": "7" });
   });
 });
 
