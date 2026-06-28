@@ -38,6 +38,47 @@ function getDisplayName(element: React.ReactElement): string | undefined {
   return type?.displayName || type?.name;
 }
 
+/** The root components renderToJson understands. */
+const VALID_ROOTS = new Set(["Body", "Email", "Page", "Document"]);
+
+/**
+ * Unwrap a user wrapper component down to the underlying root element.
+ * `renderToHtml` renders wrappers through React; `renderToJson` walks the element
+ * tree, so a custom component that *returns* <Email>/<Body>/<Page>/<Document>
+ * (e.g. `renderToJson(<MyEmail/>)`) must be invoked first. Only plain function
+ * components are unwrapped — anything else (class / forwardRef / memo) falls
+ * through to the clear root-type error.
+ */
+function unwrapRoot(element: React.ReactElement): React.ReactElement {
+  let current = element;
+  for (let depth = 0; depth < 10; depth++) {
+    const name = getDisplayName(current);
+    if (name && VALID_ROOTS.has(name)) break;
+    const type = current.type as any;
+    const isPlainFunctionComponent =
+      typeof type === "function" && !type.prototype?.isReactComponent;
+    if (!isPlainFunctionComponent) break;
+    // Invoking the wrapper can throw (e.g. it uses React hooks, which aren't
+    // valid when called outside React's render). Turn that into an actionable
+    // message instead of a bare "Invalid hook call".
+    let produced: unknown;
+    try {
+      produced = type({ ...(current.props as Record<string, unknown>) });
+    } catch (cause) {
+      const detail = cause instanceof Error ? cause.message : String(cause);
+      throw new Error(
+        `[Unlayer] renderToJson: could not unwrap <${name || "wrapper"}>. A wrapper must ` +
+          `be a plain component that synchronously returns a root (<Email>, <Page>, ` +
+          `<Document>, or <Body>) and uses no React hooks. Pass the root element directly — ` +
+          `e.g. renderToJson(<Email>…</Email>). (${detail})`
+      );
+    }
+    if (!React.isValidElement(produced)) break;
+    current = produced;
+  }
+  return current;
+}
+
 /** Collect valid React element children from a node. */
 function collectChildren(node: React.ReactNode): React.ReactElement[] {
   const result: React.ReactElement[] = [];
@@ -408,10 +449,12 @@ export function renderRowToJson(element: React.ReactElement): DesignRow {
 }
 
 export function renderToJson(element: React.ReactElement): DesignJSON {
+  // Accept a user wrapper component (e.g. <MyEmail/>) by unwrapping to its root,
+  // matching renderToHtml which renders wrappers through React.
+  element = unwrapRoot(element);
   const displayName = getDisplayName(element);
-  const validRoots = new Set(["Body", "Email", "Page", "Document"]);
 
-  if (!displayName || !validRoots.has(displayName)) {
+  if (!displayName || !VALID_ROOTS.has(displayName)) {
     throw new Error(
       `[Unlayer] renderToJson: Root element must be <Body>, <Email>, <Page>, or <Document>, ` +
         `but got <${displayName || "unknown"}>. ` +

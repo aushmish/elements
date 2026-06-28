@@ -310,6 +310,33 @@ describe("renderToJson", () => {
     ).toThrow("Root element must be <Body>");
   });
 
+  it("unwraps a user wrapper component down to its root (parity with renderToHtml)", () => {
+    const MyEmail = () => (
+      <Email contentWidth="600px">
+        <Row layout={ColumnLayouts.OneColumn}>
+          <Column>
+            <Heading>Wrapped</Heading>
+          </Column>
+        </Row>
+      </Email>
+    );
+    const design = renderToJson(<MyEmail />);
+    expect(design.body.rows.length).toBe(1);
+    expect(design.body.rows[0].columns.length).toBe(1);
+  });
+
+  it("still throws when a wrapper does not resolve to a valid root", () => {
+    const NotARoot = () => <Paragraph>nope</Paragraph>;
+    expect(() => renderToJson(<NotARoot />)).toThrow("Root element must be <Body>");
+  });
+
+  it("rethrows an actionable error when a wrapper throws while unwrapping", () => {
+    const Boom = (): React.ReactElement => {
+      throw new Error("invalid hook call");
+    };
+    expect(() => renderToJson(<Boom />)).toThrow("could not unwrap");
+  });
+
   it("generates _meta at all levels", () => {
     const design = renderToJson(
       <Body>
