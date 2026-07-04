@@ -333,6 +333,32 @@ The document shell matches the mode: `<Email>` gets the XHTML transitional docty
 
 If your app owns the document shell (an existing page template, an ESP template, an iframe `srcdoc`), use `renderToHtmlParts` instead — it returns `{ head, body }` chunks for you to place yourself.
 
+## Custom Tools
+
+**A custom tool is the custom component you create.** We keep the editor's term — Custom Tools — because it's the same API across the Builder and Elements, and that shared vocabulary is where the power is: the same definition you pass to the editor's [`unlayer.registerTool`](https://docs.unlayer.com/builder/tools/custom) renders from code too. Elements uses the `renderer.exporters` and `renderer.head` halves of the definition; the editor-only parts (`label`, `icon`, `options`, `Viewer`, `validator`) are accepted and ignored:
+
+```tsx
+import { registerTool, Email, Row, Column, renderToHtml, renderToJson } from '@unlayer/react-elements';
+import { countdownTool } from './countdown-tool'; // the same object you register in the editor
+
+const Countdown = registerTool(countdownTool); // same term, same config as the editor
+
+const tree = (
+  <Email>
+    <Row><Column>
+      <Countdown endTime="2026-08-01T00:00:00Z" digitColor="#e11d48" />
+    </Column></Row>
+  </Email>
+);
+
+renderToHtml(tree);  // renders via YOUR exporters — identical output to editor exports
+renderToJson(tree);  // emits { type: "custom", slug: "countdown", values } — opens in the Builder as the real tool
+```
+
+- Props are the tool's `values` (flat), merged over the definition's defaults; `values={{...}}` works as an escape hatch.
+- Modes fall back like the editor: `document` uses the `web` exporter; an email-only tool renders via its `email` exporter everywhere.
+- **Sanitization:** when your config provides `toSafeHtml`, the tool's HTML output is passed through it (matching editor exports). The default config has no sanitizer — configure one if tool values can contain untrusted content.
+
 ## UnlayerProvider
 
 Configure global settings like CDN base URL, merge tags, text direction, and rendering mode:
